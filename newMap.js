@@ -1,4 +1,4 @@
-var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson";
+var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson";
 
 // get data
 var locations;
@@ -58,7 +58,7 @@ var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
   // map object
   var myMap = L.map("map", {
     center: [37.09, -95.71],
-    zoom: 5,
+    zoom: 2.2,
     layers: [streetmap, earthquakes]
   });
 
@@ -68,14 +68,18 @@ var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
   }).addTo(myMap);
 
   for (var i = 0; i < locations.length; i++) {
-        L.circleMarker(locations[i].geometry.coordinates, {
+        var marker = L.circleMarker(locations[i].geometry.coordinates, {
             stroke: false,
             fillOpacity: 0.8,
-            color: 'red',
-            fillColor: 'red',
+            color: 'white',
+            fillColor: locations[i].properties.alert,
             radius: locations[i].properties.mag
-        }
-    ).addTo(myMap);
+        })
+
+        marker.bindPopup(`Location: ${locations[i].properties.place} </br> Magnitude: ${locations[i].properties.mag}`).openPopup()
+    
+    .addTo(myMap);
+
 }
   
 });
