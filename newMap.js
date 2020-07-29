@@ -22,6 +22,24 @@ d3.json(url, function(data){
     //     // console.log(earthquakeMarkers)
     // };
 
+// color intensity of the dots
+function getColor(mag) {
+  switch (true) {
+    case mag > 5:
+      return "#ea2c2c";
+    case mag > 4:
+      return "#ea822c";
+    case mag > 3:
+      return "#ee9c00";
+    case mag > 2:
+      return "#eecc00";
+    case mag > 1:
+      return "#d4ee00";
+    default:
+      return "#98ee00";
+    }
+  };
+
 
 // create map base layers 
 console.log(locations[1].geometry.coordinates[0], locations[1].geometry.coordinates[1])
@@ -42,7 +60,7 @@ var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
   });
 
   // create map layer group
-  var earthquakes = L.layerGroup(earthquakeMarkers);
+  var earthquakes = L.layerGroup();
   
   // baseMaps object
   var baseMaps = {
@@ -67,20 +85,24 @@ var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}
       collapsed: false
   }).addTo(myMap);
 
-  for (var i = 0; i < locations.length; i++) {
-        var marker = L.circleMarker(locations[i].geometry.coordinates, {
-            stroke: false,
-            fillOpacity: 0.8,
-            color: 'white',
-            fillColor: locations[i].properties.alert,
-            radius: locations[i].properties.mag
-        })
+  L.geoJson(data, {
+    pointToLayer: function(feature, latlng){
+      return L.circleMarker(latlng)
+    }, 
+    style: function(feature){
+      return {
+        stroke: false,
+        fillOpacity: 1,
+        color: 'white',
+        fillColor: getColor(feature.properties.mag),
+        radius: feature.properties.mag * 2
+      }
+    },
+    onEachFeature: function(feature, layer){
+      layer.bindPopup(`Location: ${feature.properties.place} </br> Magnitude: ${feature.properties.mag}`)
+    }
+  }).addTo(earthquakes);
 
-        marker.bindPopup(`Location: ${locations[i].properties.place} </br> Magnitude: ${locations[i].properties.mag}`).openPopup()
-    
-    .addTo(myMap);
-
-}
   
 });
 
